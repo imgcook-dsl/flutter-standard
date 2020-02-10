@@ -1,0 +1,13 @@
+'use strict';
+
+import React, { Component } from 'react';
+
+{{{imports}}}
+
+{{{utils}}}
+
+{{{style}}}
+
+{{{classes}}}
+
+{{{exports}}}
