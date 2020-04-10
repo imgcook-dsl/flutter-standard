@@ -51,6 +51,6 @@ co(function*() {
 
     const prettierRes = prettier.format(ret, prettierOpt);
 
-    fs.writeFileSync(path.join(__dirname,'../code/result.js'), prettierRes);
+    fs.writeFileSync(path.join(__dirname,'../code/index.dart'), prettierRes);
   }
 });
