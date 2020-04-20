@@ -1,13 +1,3 @@
-'use strict';
+import 'package:flutter/material.dart';
 
-import React, { Component } from 'react';
-
-{{{imports}}}
-
-{{{utils}}}
-
-{{{style}}}
-
-{{{classes}}}
-
-{{{exports}}}
+{{{result}}}
