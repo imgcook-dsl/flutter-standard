@@ -39,14 +39,25 @@ const formatProps = value => {
     .join(',\n');
 };
 
+const formatId = (value) => {
+  return value.replace(/[(-?)|(\d+)]/ig, '').substring(0, 8);
+}
+
 const hashToRgb = hash => {
   const _hash = hash.substr(1);
-  const R = _hash.substring(0, 2);
-  const G = _hash.substring(2, 4);
-  const B = _hash.substring(4);
-  return `Color.fromARGB(255, ${parseInt('0x' + R)}, ${parseInt(
-    '0x' + G
-  )}, ${parseInt('0x' + B)})`;
+  let R = _hash.substring(0, 2);
+  let G = _hash.substring(2, 4);
+  let B = _hash.substring(4);
+  if (R === 'NaN') R = 0;
+  if (G === 'NaN') G = 0;
+  if (B === 'NaN') B = 0;
+  if (/rgb/.test(hash)) {
+    const colors = hash.match(/\((.*)\)/)[1].split(',');
+    R = parseInt(colors[0]).toString(16);
+    G = parseInt(colors[1]).toString(16);
+    B = parseInt(colors[2]).toString(16);
+  }
+  return `Color.fromARGB(255, ${parseInt('0x' + R)}, ${parseInt('0x' + G)}, ${parseInt('0x' + B)})`
 };
 
 const transformUnit = unit => {
@@ -369,7 +380,7 @@ module.exports = function(schema, option) {
     // 生成新的widget
     delete schema.smart;
     widgets.push(transform(schema, true));
-    return `${schema.id}()`;
+    return `${formatId(schema.id)}()`;
   };
 
   const createStack = (schema, styleProps) => {
@@ -521,7 +532,7 @@ module.exports = function(schema, option) {
   };
 
   // parse schema
-  const transform = (schema, isGroup = false) => {
+  const transform = (schema, isGroup = false, isRoot = false) => {
     let result = '';
 
     if (Array.isArray(schema)) {
@@ -542,13 +553,13 @@ module.exports = function(schema, option) {
         type = schema.smart.layerProtocol.group.type.toLowerCase();
       }
 
-      if (['page', 'block', 'component'].indexOf(type) !== -1 || isGroup) {
+      if (['page', 'block', 'component'].indexOf(type) !== -1 || isGroup || isRoot) {
         let componentName = `${schema.componentName}${classes.length}`;
         componentName =
           componentName.slice(0, 1).toUpperCase() + componentName.slice(1);
 
         if (!isGroup) classes.push(schema.props.className);
-        if (isGroup) componentName = schema.id;
+        if (isGroup) componentName = formatId(schema.id);
 
         if (schema.state) {
           result += statefulWidget(componentName, generateRender(schema));
@@ -570,7 +581,7 @@ module.exports = function(schema, option) {
   }
 
   // start parse schema
-  let result = transform(schema);
+  let result = transform(schema, false, true);
   result += widgets.join('\n');
 
   const prettierOpt = {
