@@ -54,6 +54,7 @@ const transformUnit = unit => {
 };
 
 module.exports = function(schema, option) {
+  const {prettier} = option;
   // Global Public Functions
   const utils = [];
 
@@ -579,10 +580,18 @@ module.exports = function(schema, option) {
   };
 
   return {
+    panelDisplay: [
+      {
+        panelName: `index.dart`,
+        panelValue: prettier.format(`import 'package:flutter/material.dart';
+          ${result}`, prettierOpt),
+        panelType: 'javascript',
+      }
+    ],
     renderData: {
       result
     },
     prettierOpt,
-    noTemplate: false
+    noTemplate: true
   };
 };
