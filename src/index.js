@@ -40,7 +40,8 @@ const formatProps = value => {
 };
 
 const formatId = (value) => {
-  return value.replace(/[(-?)|(\d+)]/ig, '').substring(0, 8);
+  return value.substring(0, 20);
+  // return value.replace(/[(-?)|(\d+)]/ig, '').substring(0, 20);
 }
 
 const hashToRgb = hash => {
@@ -284,7 +285,6 @@ module.exports = function(schema, option) {
         flexMap[schema.props.style.alignItems]
       }`;
     }
-
     const simpleLayout = createFunction(containerComponent, {
       ...defalutRelativeLayoutStyle,
       children: `<Widget>[${transform(schema.children)}]`
@@ -448,7 +448,7 @@ module.exports = function(schema, option) {
   };
 
   // generate render xml
-  const generateRender = schema => {
+  const generateRender = (schema, isRoot = false) => {
     let type = schema.componentName.toLowerCase();
     const styleProps = parseStyle(schema.props.style);
     let container = '';
@@ -470,7 +470,7 @@ module.exports = function(schema, option) {
     }
 
     // stack
-    if (schema.props.style.position === 'relative') {
+    if (schema.props.style.position === 'relative' && !isRoot) {
       type = 'stack';
     }
 
@@ -560,17 +560,16 @@ module.exports = function(schema, option) {
 
         if (!isGroup) classes.push(schema.props.className);
         if (isGroup) componentName = formatId(schema.id);
-
         if (schema.state) {
           result += statefulWidget(componentName, generateRender(schema));
         } else {
-          result += statelessWidget(componentName, generateRender(schema));
+          const statelessWidgetResult = statelessWidget(componentName, generateRender(schema, isRoot));
+          result += statelessWidgetResult;
         }
       } else {
         result += generateRender(schema);
       }
     }
-
     return result;
   };
 
