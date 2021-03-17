@@ -7,6 +7,7 @@ const prettier = require('prettier');
 const { NodeVM } = require('vm2');
 const _ = require('lodash');
 const data = require('./data');
+const renderFun = require('../src/index.js');
 
 const vm = new NodeVM({
   console: 'inherit',
@@ -15,11 +16,25 @@ const vm = new NodeVM({
 
 co(function*() {
   const xtplRender = thunkify(xtpl.render);
-  const code = fs.readFileSync(
-    path.resolve(__dirname, '../src/index.js'),
-    'utf8'
-  );
-  const renderInfo = vm.run(code)(data, {
+  // const code = fs.readFileSync(
+  //   path.resolve(__dirname, '../src/index.js'),
+  //   'utf8'
+  // );
+  // const renderInfo = vm.run(code)(data, {
+  //   prettier: prettier,
+  //   _: _,
+  //   responsive: {
+  //     width: 750,
+  //     viewportWidth: 375
+  //   },
+  //   utils: {
+  //     print: function(value) {
+  //       console.log(value);
+  //     }
+  //   }
+  // });
+
+  const renderInfo = renderFun(data, {
     prettier: prettier,
     _: _,
     responsive: {
@@ -39,11 +54,7 @@ co(function*() {
     });
   } else {
     const renderData = renderInfo.renderData;
-    const ret = yield xtplRender(
-      path.resolve(__dirname, '../src/template.xtpl'),
-      renderData,
-      {}
-    );
+    const ret = yield xtplRender(path.resolve(__dirname, '../src/template.xtpl'), renderData, {});
 
     const prettierOpt = renderInfo.prettierOpt || {
       printWidth: 120
@@ -51,6 +62,6 @@ co(function*() {
 
     const prettierRes = prettier.format(ret, prettierOpt);
 
-    fs.writeFileSync(path.join(__dirname,'../code/index.dart'), prettierRes);
+    fs.writeFileSync(path.join(__dirname, '../code/index.dart'), prettierRes);
   }
 });
