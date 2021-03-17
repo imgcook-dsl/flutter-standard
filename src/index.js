@@ -453,29 +453,30 @@ module.exports = function(schema, option) {
     const styleProps = parseStyle(schema.props.style);
     let container = '';
 
-    if (
-      schema.smart &&
-      schema.smart.layerProtocol &&
-      schema.smart.layerProtocol.component
-    ) {
-      type = schema.smart.layerProtocol.component.type.toLowerCase();
-    }
+    // 暂时注释，识别不准影响出码
+    // if (
+    //   schema.smart &&
+    //   schema.smart.layerProtocol &&
+    //   schema.smart.layerProtocol.component
+    // ) {
+    //   type = schema.smart.layerProtocol.component.type.toLowerCase();
+    // }
 
-    if (
-      schema.smart &&
-      schema.smart.layerProtocol &&
-      schema.smart.layerProtocol.group
-    ) {
-      type = schema.smart.layerProtocol.group.type.toLowerCase();
-    }
+    // if (
+    //   schema.smart &&
+    //   schema.smart.layerProtocol &&
+    //   schema.smart.layerProtocol.group
+    // ) {
+    //   type = schema.smart.layerProtocol.group.type.toLowerCase();
+    // }
 
     // stack
-    if (schema.props.style.position === 'relative' && !isRoot) {
+    if (schema.props.style && schema.props.style.position === 'relative' && !isRoot && (!schema.children || schema.children.length < 1)) {
       type = 'stack';
     }
 
     // position
-    if (schema.props.style.position === 'absolute') {
+    if (schema.props.style && schema.props.style.position === 'absolute') {
       type = 'positioned';
     }
 
@@ -518,7 +519,7 @@ module.exports = function(schema, option) {
             container = parseChildren(schema, styleProps);
           } else {
             container = createFunction('Container', {
-              child: transform(schema.children),
+              child: transform(schema.children[0]),
               ...styleProps
             });
           }
@@ -534,7 +535,6 @@ module.exports = function(schema, option) {
   // parse schema
   const transform = (schema, isGroup = false, isRoot = false) => {
     let result = '';
-
     if (Array.isArray(schema)) {
       schema.forEach((layer, index) => {
         result += transform(layer);
